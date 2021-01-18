@@ -10,7 +10,7 @@
 """
 
 from os import listdir
-from os.path import isdir, splitext
+from os.path import isdir, splitext, join as path_join
 
 
 def list_paths(dir_path: str, depth: int = 0, suffix=None, key_str: str = None):
@@ -27,14 +27,12 @@ def list_paths(dir_path: str, depth: int = 0, suffix=None, key_str: str = None):
     # 设定当前目录的表示值
     current_dir_level = 0
 
-    dir_path = dir_path if dir_path.endswith("/") else dir_path + "/"
-
     if suffix:
         if not suffix.startswith('.'):
             suffix = '.' + suffix
 
     for _path in listdir(dir_path):
-        tmp_path = dir_path + _path
+        tmp_path = path_join(dir_path, _path)
 
         if isdir(tmp_path):
             if current_dir_level < depth:
@@ -62,8 +60,8 @@ def demo():
     test_path = './'
     depth = 0  # 当前目录
     suffix = ".py"  # 搜索后缀为".py"的文件
-    key_str = '_'   # 并且路径中包含'_'
-    res = list_paths(test_path, depth=depth, suffix=suffix, key_str=key_str)
+    key_str = '_'  # 并且路径中包含'_'
+    res = list_paths(test_path, depth=depth)
     for i in res:
         print(i)
 
