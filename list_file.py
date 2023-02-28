@@ -64,17 +64,3 @@ def file_filter(dir_path: str, depth: int = 0, suffix=None, key_str: str = None)
                 # 还有一点值得注意，all([])的值为True。即，当不加任何条件的时候，依然返回路径
                 if all(found):
                     yield tmp_path
-
-
-def demo():
-    test_path = './'
-    depth = 0  # 当前目录
-    suffix = ".py"  # 搜索后缀为".py"的文件
-    key_str = '_'  # 并且路径中包含'_'
-
-    for j in file_filter(test_path, depth=depth):
-        print(j)
-
-
-if __name__ == "__main__":
-    demo()
