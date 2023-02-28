@@ -10,6 +10,7 @@
 """
 from os.path import splitext
 from pathlib import Path
+from queue import Queue
 
 
 def file_filter(dir_path: str, depth: int = 0, suffix=None, key_str: str = None):
@@ -23,39 +24,46 @@ def file_filter(dir_path: str, depth: int = 0, suffix=None, key_str: str = None)
     :param key_str:     str     返回的路径中包含特定的关键词
     """
 
+    queue = Queue()
+
     # 设定当前目录的表示值
-    current_dir_level = 0
+    current_dir_level = -1
+    queue.put(dir_path)
 
     if suffix:
         suffix = ('.' + suffix) if not suffix.startswith('.') else suffix
 
-    # _path 输出的是绝对路径
-    for path in Path(dir_path).absolute().iterdir():
-        tmp_path = str(path)
+    while not queue.empty():
+        current_dir_level += 1
+        current_dir = queue.get()
 
-        if path.is_dir():
-            if current_dir_level < depth:
-                yield from file_filter(tmp_path, depth - 1, suffix, key_str)
+        # _path 输出的是绝对路径
+        for path in Path(dir_path).absolute().iterdir():
+            tmp_path = str(path)
 
-        else:
-            found = []
-            if suffix:
-                if splitext(tmp_path)[-1] == suffix:
-                    found.append(True)
-                else:
-                    found.append(False)
+            if path.is_dir():
+                if current_dir_level < depth:
+                    queue.put(tmp_path)
 
-            if key_str:
-                if key_str in tmp_path:
-                    found.append(True)
-                else:
-                    found.append(False)
+            else:
+                found = []
+                if suffix:
+                    if splitext(tmp_path)[-1] == suffix:
+                        found.append(True)
+                    else:
+                        found.append(False)
 
-            # 在加了suffix或key_str条件后，如果没有找到符合条件的路径，found会得到一个False(如，[False])
-            # all: 所有值都为True时，返回True。即加了条件后，该条路径符合满足所有条件的需求，则返回True
-            # 还有一点值得注意，all([])的值为True。即，当不加任何条件的时候，依然返回路径
-            if all(found):
-                yield tmp_path
+                if key_str:
+                    if key_str in tmp_path:
+                        found.append(True)
+                    else:
+                        found.append(False)
+
+                # 在加了suffix或key_str条件后，如果没有找到符合条件的路径，found会得到一个False(如，[False])
+                # all: 所有值都为True时，返回True。即加了条件后，该条路径符合满足所有条件的需求，则返回True
+                # 还有一点值得注意，all([])的值为True。即，当不加任何条件的时候，依然返回路径
+                if all(found):
+                    yield tmp_path
 
 
 def demo():
@@ -63,9 +71,9 @@ def demo():
     depth = 0  # 当前目录
     suffix = ".py"  # 搜索后缀为".py"的文件
     key_str = '_'  # 并且路径中包含'_'
-    res = file_filter(test_path, depth=depth)
-    for i in res:
-        print(i)
+
+    for j in file_filter(test_path, depth=depth):
+        print(j)
 
 
 if __name__ == "__main__":
