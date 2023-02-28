@@ -38,7 +38,7 @@ def file_filter(dir_path: str, depth: int = 0, suffix=None, key_str: str = None)
         current_dir = queue.get()
 
         # _path 输出的是绝对路径
-        for path in Path(dir_path).absolute().iterdir():
+        for path in Path(current_dir).absolute().iterdir():
             tmp_path = str(path)
 
             if path.is_dir():
